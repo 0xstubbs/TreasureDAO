@@ -1,6 +1,0 @@
-balances_by_day.csv
-supply_over_time.csv
-df_transfers.csv
-excluded_addresses.csv
-legion_holders_by_day.csv
-unique_legion_holders.csv
