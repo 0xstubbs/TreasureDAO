@@ -32,20 +32,31 @@ expander_test = st.expander
 #---------------------------------------------#
 
 @st.cache
-def load_minted_over_time():
-    return pd.read_csv('./MAGIC Minted over Time.csv')
-def load_daily_balances_and_net_change():
-    return pd.read_csv('./magic_token_daily_change_and_wallet_bal.csv')
 def load_excluded_addresses():
-    return pd.read_csv('./excluded_addresses.csv')
+    return pd.read_csv('excluded_addresses.csv')
+    # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/excluded_addresses.csv')
 def load_balances_by_day():    
-    return pd.read_csv('./balances_by_day.csv')
+    # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/balances_by_day.csv')
+    return pd.read_csv('balances_by_day.csv')
+
 def load_supply_over_time():
-    return pd.read_csv('./supply_over_time.csv')
+    # return pd.read_csv('./supply_over_time.csv')
+    # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/supply_over_time.csv')
+    return pd.read_csv('supply_over_time.csv')
+
 def load_legion_nft_holders_over_time():
-    return pd.read_csv('./legion_holders_by_day.csv')
+    # return pd.read_csv('./legion_holders_by_day.csv')
+    # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/legion_holders_by_day.csv')
+    return pd.read_csv('legion_holders_by_day.csv')
+
 def unique_legion_holders():
-    return pd.read_csv('./unique_legion_holders.csv')
+    # return pd.read_csv('./unique_legion_holders.csv')
+    # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/unique_legion_holders.csv')
+    return pd.read_csv('unique_legion_holders.csv')
+
+
+
+
 # with st.expander('About this app'):
 #   st.write('This app shows the various ways on how you can layout your Streamlit app.')
 # #   st.image('https://streamlit.io/images/brand/streamlit-logo-secondary-colormark-darktext.png', width=250)
