@@ -5,7 +5,7 @@ import altair as alt
 from datetime import date
 import numpy as np
 import os
-import s3fs
+from s3fs import S3FileSystem
 
 
 st.set_page_config(layout='wide')
@@ -34,7 +34,7 @@ tab1, tab2, tab3 = st.tabs(['Magic Token', 'Legion', 'Other'])
 
 expander_test = st.expander
 #---------------------------------------------#
-s3 = s3fs.S3FileSystem(anon=False)
+s3 = S3FileSystem(anon=False)
 @st.experimental_memo(ttl=600)
 def load_supply_over_time():
     # return pd.read_csv('./supply_over_time.csv')
