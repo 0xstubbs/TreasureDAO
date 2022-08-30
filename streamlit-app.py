@@ -3,6 +3,7 @@ import pandas as pd
 import altair as alt
 from datetime import date
 import numpy as np
+import s3fs
 
 st.set_page_config(layout='wide')
 pd.set_option('display.precision', 2)
@@ -30,29 +31,50 @@ tab1, tab2, tab3 = st.tabs(['Magic Token', 'Legion', 'Other'])
 
 expander_test = st.expander
 #---------------------------------------------#
-
-@st.cache
-def load_excluded_addresses():
-    return pd.read_csv('excluded_addresses.csv')
-    # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/excluded_addresses.csv')
-def load_balances_by_day():    
-    # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/balances_by_day.csv')
-    return pd.read_csv('balances_by_day.csv')
-
+s3 = s3fs.S3FileSystem(anon=False)
+@st.experimental_memo(ttl=600)
 def load_supply_over_time():
     # return pd.read_csv('./supply_over_time.csv')
-    # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/supply_over_time.csv')
-    return pd.read_csv('supply_over_time.csv')
+    return pd.read_csv(s3.open('https://stubbs-file-storage-streamlit.s3.us-west-1.amazonaws.com/supply_over_time.csv', mode='rb'))
+    # return pd.read_csv('supply_over_time.csv')
+def load_excluded_addresses():
+    # return pd.read_csv('excluded_addresses.csv')
+    return pd.read_csv(s3.open('https://stubbs-file-storage-streamlit.s3.us-west-1.amazonaws.com/excluded_addresses.csv', mode='rb')) #'https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/excluded_addresses.csv')
+def load_balances_by_day():    
+    return pd.read_csv(s3.open('https://stubbs-file-storage-streamlit.s3.us-west-1.amazonaws.com/balances_by_day.csv', mode='rb')) #'https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/balances_by_day.csv')
+    # return pd.read_csv('balances_by_day.csv')
+
+
 
 def load_legion_nft_holders_over_time():
     # return pd.read_csv('./legion_holders_by_day.csv')
-    # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/legion_holders_by_day.csv')
-    return pd.read_csv('legion_holders_by_day.csv')
+    return pd.read_csv(s3.open('https://stubbs-file-storage-streamlit.s3.us-west-1.amazonaws.com/legion_holders_by_day.csv', mode='rb'))
+    # return pd.read_csv('legion_holders_by_day.csv')
 
 def unique_legion_holders():
     # return pd.read_csv('./unique_legion_holders.csv')
-    # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/unique_legion_holders.csv')
-    return pd.read_csv('unique_legion_holders.csv')
+    return pd.read_csv(s3.open('https://stubbs-file-storage-streamlit.s3.us-west-1.amazonaws.com/unique_legion_holders.csv', mode='rb'))
+    # return pd.read_csv('unique_legion_holders.csv')
+
+# @st.cache
+# def load_excluded_addresses():
+#     return pd.read_csv('excluded_addresses.csv')
+#     # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/excluded_addresses.csv')
+# def load_balances_by_day():    
+#     # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/balances_by_day.csv')
+#     return pd.read_csv('balances_by_day.csv')
+
+
+
+# def load_legion_nft_holders_over_time():
+#     # return pd.read_csv('./legion_holders_by_day.csv')
+#     # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/legion_holders_by_day.csv')
+#     return pd.read_csv('legion_holders_by_day.csv')
+
+# def unique_legion_holders():
+#     # return pd.read_csv('./unique_legion_holders.csv')
+#     # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/unique_legion_holders.csv')
+#     return pd.read_csv('unique_legion_holders.csv')
 
 
 
