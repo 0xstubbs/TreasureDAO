@@ -5,18 +5,38 @@ import altair as alt
 from datetime import date
 import numpy as np
 import os
-from s3fs import S3FileSystem
+import dotenv
+import boto3
+
+
+dotenv.load_dotenv()
+
+
+
+
+try:
+    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    # AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+    # AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    client = boto3.client('s3', aws_access_key_id = AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+except:
+    AWS_ACCESS_KEY_ID = st.secrets['AWS_ACCESS_KEY_ID']
+    AWS_SECRET_ACCESS_KEY = st.secrets['AWS_SECRET_ACCESS_KEY']
+    client = boto3.client('s3', aws_access_key_id = AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
 
 
 st.set_page_config(layout='wide')
 pd.set_option('display.precision', 2)
-
+st.image('https://skycatcher.xyz/images/logo-white.svg')
 header = st.container()
 dataset = st.container()
 legion_tokens = st.container()
 
 st.sidebar.markdown("### Treasure Ecosystem Overview")
 st.sidebar.markdown("This app will go over the basics of the Treasure Ecosystem.")
+st.sidebar.markdown("Link to BridgeWorld: [BridgeWorld](https://bridgeworld.treasure.lol/)")
+st.sidebar.markdown("Link to Trove Marketplace: [Trove](https://trove.treasure.lol/)")
 
 with header:
     st.title('Treasure Ecosystem')
@@ -28,83 +48,61 @@ with header:
 col1 = st.sidebar
 col2, col3 = st.columns((2,1))    
 
-tab1, tab2, tab3 = st.tabs(['Magic Token', 'Legion', 'Other'])
-# pd.options.display.float_format = "{:,.0f}".format
+tab1, tab2, tab3 = st.tabs(['Magic Token', 'Legion', 'Trove'])
+
 
 
 expander_test = st.expander
 #---------------------------------------------#
-s3 = S3FileSystem(anon=False)
-@st.experimental_memo(ttl=600)
+
+    
+s3_bucket = "stubbs-file-storage-streamlit"
+region = "us-west-1"
+
+@st.experimental_memo(ttl=1200)
 def load_supply_over_time():
-    # return pd.read_csv('./supply_over_time.csv')
-    return pd.read_csv(s3.open('https://stubbs-file-storage-streamlit.s3.us-west-1.amazonaws.com/supply_over_time.csv', mode='rb'))
-    # return pd.read_csv('supply_over_time.csv')
+    file_name = 'supply_over_time.csv'
+    obj=client.get_object(Bucket=s3_bucket, Key=file_name)
+    df = pd.read_csv(obj['Body'])
+    return df
+
 def load_excluded_addresses():
-    # return pd.read_csv('excluded_addresses.csv')
-    return pd.read_csv(s3.open('https://stubbs-file-storage-streamlit.s3.us-west-1.amazonaws.com/excluded_addresses.csv', mode='rb')) #'https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/excluded_addresses.csv')
-def load_balances_by_day():    
-    return pd.read_csv(s3.open('https://stubbs-file-storage-streamlit.s3.us-west-1.amazonaws.com/balances_by_day.csv', mode='rb')) #'https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/balances_by_day.csv')
-    # return pd.read_csv('balances_by_day.csv')
+    
+    file_name = 'excluded_addresses.csv'
+    obj=client.get_object(Bucket=s3_bucket, Key=file_name)
+    df = pd.read_csv(obj['Body'])
+    return df
 
-
+def load_balances_by_day():
+    file_name = 'balances_by_day.csv'
+    obj=client.get_object(Bucket=s3_bucket, Key=file_name)
+    df = pd.read_csv(obj['Body'])
+    
+    return df  
 
 def load_legion_nft_holders_over_time():
-    # return pd.read_csv('./legion_holders_by_day.csv')
-    return pd.read_csv(s3.open('https://stubbs-file-storage-streamlit.s3.us-west-1.amazonaws.com/legion_holders_by_day.csv', mode='rb'))
-    # return pd.read_csv('legion_holders_by_day.csv')
+    file_name = 'legion_holders_by_day.csv'
+    obj=client.get_object(Bucket=s3_bucket, Key=file_name)
+    df = pd.read_csv(obj['Body'])
+    
+    return df
 
 def unique_legion_holders():
-    # return pd.read_csv('./unique_legion_holders.csv')
-    return pd.read_csv(s3.open('https://stubbs-file-storage-streamlit.s3.us-west-1.amazonaws.com/unique_legion_holders.csv', mode='rb'))
-    # return pd.read_csv('unique_legion_holders.csv')
-
-# @st.cache
-# def load_excluded_addresses():
-#     return pd.read_csv('excluded_addresses.csv')
-#     # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/excluded_addresses.csv')
-# def load_balances_by_day():    
-#     # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/balances_by_day.csv')
-#     return pd.read_csv('balances_by_day.csv')
-
-
-
-# def load_legion_nft_holders_over_time():
-#     # return pd.read_csv('./legion_holders_by_day.csv')
-#     # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/legion_holders_by_day.csv')
-#     return pd.read_csv('legion_holders_by_day.csv')
-
-# def unique_legion_holders():
-#     # return pd.read_csv('./unique_legion_holders.csv')
-#     # return pd.read_csv('https://github.com/0xstubbs/TreasureDAO/blob/c0e3400e23b5b5bfa42040b544bd21abdf457b3b/unique_legion_holders.csv')
-#     return pd.read_csv('unique_legion_holders.csv')
-
-
-
-
-# with st.expander('About this app'):
-#   st.write('This app shows the various ways on how you can layout your Streamlit app.')
-# #   st.image('https://streamlit.io/images/brand/streamlit-logo-secondary-colormark-darktext.png', width=250)
-# with expander_test('expander'):
-    # tab1, tab2, tab3 = st.tabs(['Magic Token', 'Legion', 'Other'])
-
+    file_name = 'unique_legion_holders.csv'
+    obj=client.get_object(Bucket=s3_bucket, Key=file_name)
+    df = pd.read_csv(obj['Body'])
+    return df
 
 with tab1:
     st.header('$MAGIC Token')
     tab1_col1, tab1_col2, tab1_col3 = st.columns((1,1,1))
 with tab1_col1:
     st.header('Magic Supply Growth')
-    # minted_over_time = pd.read_csv('~/Documents/skycatcher/TreasureDAO/MAGIC Minted over Time.csv')
-    # minted_over_time = load_minted_over_time()
     minted_over_time = load_supply_over_time()
     minted_over_time['amount'] = minted_over_time['amount'].apply(lambda x: -1*x)
     minted_over_time['cumsum'] = minted_over_time['cumsum'].apply(lambda x: -1 * x)
-    # minted_over_time.style.format({'amount': '{:,.0f}'})
     total_magic_supply = abs(minted_over_time['cumsum'].iloc[-1])
     
-    # total_magic_supply = format(total_magic_supply, '{:,.0f}')
-    # total_magic_supply.style.format({"amt_minted":"{:,.0f}"})
-    # st.metric('Total MAGIC Supply', "{:,.0f}".format(total_magic_supply))
     st.metric('Total MAGIC Supply', "{:,.0f}".format(total_magic_supply))
     # st.line_chart(minted_over_time, x='date', y=['cumsum', 'amount'])
     chart = alt.Chart(minted_over_time).mark_area().encode(
@@ -116,33 +114,19 @@ with tab1_col1:
     
 with tab1_col2:
     st.header('Current Wallet Balances')
-    # balances = pd.read_csv('/home/stubbs/Documents/skycatcher/TreasureDAO/magic_token_daily_change_and_wallet_bal.csv')
     balances = load_balances_by_day()
     balances.drop(balances.columns[0], axis=1, inplace=True)
     balances['date'] = pd.to_datetime(balances['date']).dt.date
     balances = balances.sort_values('cumsum', ascending=False)
     balances_today = balances[balances['date'] == balances['date'].max()][['date','wallet_address','cumsum']]
-    # print(balances_today.head())
-    # balances_today = balances_today.sort_values(by=['cumsum'], ascending=[False])#.style.format({'cumsum': '{:,.0f}'})
-    # print(balances_today.head())
     
     df_excluded_addresses = load_excluded_addresses()[['Name', 'Wallet Address']]
     excluded_addresses = df_excluded_addresses['Wallet Address'].str.lower().to_list()
     
-    
-    # tab1_col2_c1, tab1_col2_c2 = st.columns((1,1))
-    
-    
-    
-    # balances_today.style.format({'cumsum': '{:,.0f}'})
     balances_today_wo_contracts = balances_today[~balances_today['wallet_address'].isin(excluded_addresses)]
     balances_excluded = balances_today[balances_today['wallet_address'].isin(excluded_addresses)]
-    # st.dataframe(balances_today_wo_contracts, width=1400, height=600)
-    # with tab1_col2_c1:
     st.write('Wallet Balances <not staking contracts>')
-    # st.dataframe(balances_today_wo_contracts, width=1400, height=600)
     st.dataframe(balances_today_wo_contracts, width=1400, height=600)
-# with tab1_col2_c2:
 
     
    
@@ -156,8 +140,6 @@ with tab1_col3:
 with excluded_address_expander:
     st.write('Staking contracts, DAO Multisigs, and Markets are excluded')
     st.dataframe(df_excluded_addresses)
-
-    # st.dataframe(balances_excluded, width=1400, height=600)
 
 #----------------------------------------------------------------------------------------------------------------------------#
 #Add section where the user can input a specific wallet address and get stats back.
@@ -198,16 +180,6 @@ with tab2:
     st.metric('Number of Legion NFTs', df_legion_holders_by_day_total['cumsum'].iloc[-1])
     col1_nft_stats, col2_nft_stats = st.columns((2,1))
 
-    
-    
-    
-    
-    # st.write(df_legion_holders_by_day_total.head())
-    # st.dataframe(df_legion_holders_by_day_total, width=1400, height=600)
-    
-    
-
-    
     st.write('Number of Unique Holders over Time')
     unique_legion_chart = chart = alt.Chart(df_unique_legion_holders).mark_area().encode(
         x = 'date:T',
@@ -231,76 +203,5 @@ with col1_nft_stats:
 with col2_nft_stats:
     st.dataframe(df_legion_holders_by_day, width=1400, height=600)    
     
-    
-    
-# st.line_chart(specific_balances, x='date', y=['amount', 'cumsum'])
-# with col2:
-#     st.header('$MAGIC Token')
-#     minted_over_time = pd.read_csv('~/Documents/skycatcher/TreasureDAO/MAGIC Minted over Time.csv')
-#     st.metric('Total MAGIC Supply', minted_over_time['amt_minted'].iloc[-1])
-    
-    # st.line_chart(minted_over_time, x='date', y=['amt_minted', 'amount'])
-    
-    
-    # # data = pd.read_csv('/home/stubbs/Documents/skycatcher/TreasureDAO/magic_token_daily_change_and_wallet_bal.csv')
-    # data = data.sort_values(by=['date', 'cumsum'], ascending=[False, False])
-    # data.drop(data.columns[0], axis=1, inplace=True)
-    # data['date'] = pd.to_datetime(data['date'])
-    # # data.drop(columns=[0], inplace=True).reset_index()
-    # st.dataframe(data, width=1400, height=400)
-    
-    
-    # magic_stuff = data[data['cumsum'] > 10000]
-    
-    # wallet_balances = alt.Chart(magic_stuff).mark_area().encode(
-    # x="date:T",
-    # y=alt.Y("cumsum:Q", stack="normalize"),
-    # color="address:N"
-    # )
-    
-    # st.altair_chart(wallet_balances, use_container_width=True)
-    
-    # #Create histogram of the data
-    # hist_data = data[(data['date'] == data['date'].max()) & (data['cumsum']>10000)][['address', 'cumsum']]
-    # # hist_data.hist()
-    # hist_values = np.histogram(hist_data[date], 15)
-    # st.bar_chart(hist_values)
-    # brush = alt.selection_interval(encodings=['x'])
-    # base = alt.Chart(hist_data)
-    # bar = base.mark_bar().encode(
-    # x=alt.X('cumsum:Q', bin=True, axis=None),
-    # y='count()'
-    # )
-    # rule = base.mark_rule(color='red').encode(
-    # x='mean(cumsum):Q',
-    # size=alt.value(5)
-
-
-# with col3:
-#     balances = pd.read_csv('/home/stubbs/Documents/skycatcher/TreasureDAO/magic_token_daily_change_and_wallet_bal.csv')
-#     balances.drop(balances.columns[0], axis=1, inplace=True)
-#     balances['date'] = pd.to_datetime(balances['date'])
-#     balances_today = balances[balances['date'] == balances['date'].max()][['address', 'cumsum']]
-#     balances_today = balances_today.sort_values(by=['cumsum'], ascending=[True])
-#     st.dataframe(balances, width=1400, height=400)
-
-
-
-    
-    
-# with legion_tokens:
-#     st.header('Unique NFT Holders over Time')
-#     # st.write('Unique NFT Holders over Time')
-#     legion_token_data = pd.read_csv('~/Documents/skycatcher/TreasureDAO/unique_legion_holders.csv')
-#     legion_token_data
-    
-#     legion_token_data = legion_token_data.rename(columns={0:'unique_holders'})
-#     st.metric('Unique Legion Holders', legion_token_data['unique_holders'].iloc[-1])
-#     st.line_chart(legion_token_data, x='date', y='unique_holders')
-    
-#     # print(legion_token_data)
-#     st.header('Legion Holders')
-    
-    
-#     st.dataframe('')
-    
+with tab3:
+    st.header('Trove Marketplace')
