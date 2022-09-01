@@ -4,11 +4,11 @@ import altair as alt
 from datetime import date
 import numpy as np
 import os
-import dotenv
+from dotenv import load_dotenv
 import boto3
 
 
-dotenv.load_dotenv()
+load_dotenv()
 
 
 
