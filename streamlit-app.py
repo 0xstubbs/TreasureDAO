@@ -94,16 +94,21 @@ def unique_legion_holders():
 
 with tab1:
     st.header('$MAGIC Token')
-    tab1_col1, tab1_col2, tab1_col3 = st.columns((1,1,1))
+    tab1_col1, tab1_col2 = st.columns((1,2))
+    tab1_col1_2, tab1_col2_2, tab1_col3_2 = st.columns((1,1,1))
+
+
 with tab1_col1:
+    total_magic_supply = abs(minted_over_time['cumsum'].iloc[-1])
+    st.metric('Total MAGIC Supply', "{:,.0f}".format(total_magic_supply))
+
+    # st.line_chart(minted_over_time, x='date', y=['cumsum', 'amount'])
+    
+with tab1_col2:
     st.header('Magic Supply Growth')
     minted_over_time = load_supply_over_time()
     minted_over_time['amount'] = minted_over_time['amount'].apply(lambda x: -1*x)
     minted_over_time['cumsum'] = minted_over_time['cumsum'].apply(lambda x: -1 * x)
-    total_magic_supply = abs(minted_over_time['cumsum'].iloc[-1])
-    
-    st.metric('Total MAGIC Supply', "{:,.0f}".format(total_magic_supply))
-    # st.line_chart(minted_over_time, x='date', y=['cumsum', 'amount'])
     chart = alt.Chart(minted_over_time).mark_area().encode(
         x = 'date:T',
         y='cumsum:Q',
@@ -111,7 +116,7 @@ with tab1_col1:
     )
     st.altair_chart(chart, use_container_width=True)
     
-with tab1_col2:
+with tab1_col2_2:
     st.header('Current Wallet Balances')
     balances = load_balances_by_day()
     balances.drop(balances.columns[0], axis=1, inplace=True)
@@ -129,7 +134,7 @@ with tab1_col2:
 
     
    
-with tab1_col3:
+with tab1_col3_2:
     excluded_address_expander = st.expander('Excluded Addresses')
     st.write('Wallet Balances <Staking Contract, LP, etc>')
     balances_excluded = balances_excluded.merge(df_excluded_addresses, how='left', left_on='wallet_address', right_on='Wallet Address')
