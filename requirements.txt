@@ -1,6 +1,7 @@
-streamlit >= 1.11.0
-pandas >= 1.4.3
 dotenv
-altair >= 4.1.0
-boto3 >= 1.9.82
-setuptools
+boto3 ~= 1.9.82
+streamlit~=1.11.0
+streamlit-aggrid~=0.2.3.post2
+pandas~=1.4.2
+requests~=2.27.1
+altair~=4.2.0
