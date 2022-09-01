@@ -92,6 +92,10 @@ def unique_legion_holders():
     df = pd.read_csv(obj['Body'])
     return df
 
+minted_over_time = load_supply_over_time()
+minted_over_time['amount'] = minted_over_time['amount'].apply(lambda x: -1*x)
+minted_over_time['cumsum'] = minted_over_time['cumsum'].apply(lambda x: -1 * x)
+
 with tab1:
     st.header('$MAGIC Token')
     tab1_col1, tab1_col2 = st.columns((1,2))
@@ -106,9 +110,6 @@ with tab1_col1:
     
 with tab1_col2:
     st.header('Magic Supply Growth')
-    minted_over_time = load_supply_over_time()
-    minted_over_time['amount'] = minted_over_time['amount'].apply(lambda x: -1*x)
-    minted_over_time['cumsum'] = minted_over_time['cumsum'].apply(lambda x: -1 * x)
     chart = alt.Chart(minted_over_time).mark_area().encode(
         x = 'date:T',
         y='cumsum:Q',
