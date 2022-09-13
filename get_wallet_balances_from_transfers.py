@@ -2,109 +2,6 @@ import pandas as pd
 import numpy as np
 from datetime import date
 
-# #Use the most recent df_transfers file 
-# def load_transfers_csv():
-#     print('Loading csv...')
-#     df_transfers = pd.read_csv('/home/stubbs/Documents/skycatcher/TreasureDAO/df_transfers.csv' 
-#                           , usecols=['hash', 'from', 'to', 'value', 'rawContract.address', 'metadata.blockTimestamp']
-#                             , parse_dates=['metadata.blockTimestamp']
-#                           )
-#     return df_transfers
-# def get_transformed_transfers(_df_transfers_full):
-#     print('Transforming df...')
-#     df_transfers_in = _df_transfers_full[['hash', 'to', 'value', 'metadata.blockTimestamp']].copy()
-#     df_transfers_in.rename(columns = {'hash': 'tx_hash', 'to':'address', 'value':'amount', 'metadata.blockTimestamp':'tx_timestamp'}, inplace=True)
-    
-#     df_transfers_out = _df_transfers_full[['hash', 'from', 'value', 'metadata.blockTimestamp']].copy()
-#     df_transfers_out['value'] = df_transfers_out['value'].apply(lambda x: -1.0* x)
-#     df_transfers_out.rename(columns = {'hash': 'tx_hash', 'from':'address', 'value':'amount', 'metadata.blockTimestamp':'tx_timestamp'}, inplace=True)
-    
-#     transfer_in_n_out=pd.concat([df_transfers_in, df_transfers_out], axis=0)
-#     transfer_in_n_out['date'] = pd.to_datetime(transfer_in_n_out['tx_timestamp'].apply(lambda x:x.date()))
-    
-#     return transfer_in_n_out
-
-# def get_all_unique_addresses(_df_transfers_full):
-#     print('Getting all unique addresses...')
-#     wallets = pd.DataFrame(_df_transfers_full['address'].unique())
-#     wallets['key']=1
-#     return wallets
-
-# def get_df_all_wallets_all_days(_transformed_transfers):
-    
-#     unique_wallets = pd.DataFrame(_transformed_transfers['address'].unique())
-#     unique_wallets['key']=1
-    
-#     start_day = pd.to_datetime(_transformed_transfers['tx_timestamp'].dt.date).min()
-#     end_day = pd.to_datetime(_transformed_transfers['tx_timestamp'].dt.date).max()
-#     date_range = pd.DataFrame(pd.date_range(start_day, end_day, inclusive="both"))
-#     date_range['key']=1
-    
-#     wallets_all_days=pd.merge(unique_wallets, date_range, how='outer', on='key').drop(columns=['key']).rename(columns={'0_x':'wallet_address', '0_y':'date'})
-#     return wallets_all_days
-
-# def get_df_all_wallets_all_days_n_changes(_wallets_all_days, _transformed_transfers):
-#     wallet_all_days_n_changes = _wallets_all_days[['date', 'wallet_address']].merge(_transformed_transfers, how='left', 
-#                                                                                     left_on=['wallet_address', 'date'], 
-#                                                                                     right_on=['address', 'date']).drop(columns=['address']).fillna(0)
-#     wallet_all_days_n_changes.sort_values('date', ascending=True, inplace=True)
-#     wallet_all_days_n_changes['cumsum'] = wallet_all_days_n_changes.groupby(['wallet_address'])['amount'].cumsum()
-#     wallet_all_days_n_changes = wallet_all_days_n_changes[['date', 'wallet_address', 'amount', 'cumsum']]
-#     wallet_all_days_n_changes = wallet_all_days_n_changes[wallet_all_days_n_changes['cumsum'] > 1]
-    
-#     return wallet_all_days_n_changes
-# def get_unique_holders_per_day(_wallet_all_days_n_changes):
-#     return _wallet_all_days_n_changes.groupby('date')['wallet_address'].count()
-
-# def get_wallet_bal_net_change(_wallet_balances_n_changes):
-#     return _wallet_balances_n_changes[(_wallet_balances_n_changes['wallet_address'] != '0x0000000000000000000000000000000000000000') & (_wallet_balances_n_changes['cumsum'] > 1)]
-
-# def mints_n_burns(_df_transfers, _type):
-#     mints_n_burns = _df_transfers[_df_transfers['wallet_address'] == '0x0000000000000000000000000000000000000000']
-#     mints_burns_grp = mints_n_burns[['date', 'amount']]
-#     mints_burns_grp = mints_burns_grp.groupby('date').agg({'amount':'sum'})
-#     mints_burns_grp['cumsum'] = mints_burns_grp['amount'].cumsum()
-    
-#     if _type == 'df':
-#         return mints_burns_grp
-#     elif _type == 'total_supply':
-#         return abs(mints_burns_grp['cumsum'].min())
- 
-
-# df_transfers_full = pd.read_csv('/home/stubbs/Documents/skycatcher/TreasureDAO/df_transfers.csv', usecols=['hash', 'from', 'to', 'value', 'rawContract.address', 'metadata.blockTimestamp'], parse_dates['metadata.blockTimestamp'])
-# print('Transforming df...')
-# df_transfers_in = _df_transfers_full[['hash', 'to', 'value', 'metadata.blockTimestamp']].copy()
-# df_transfers_in.rename(columns = {'hash': 'tx_hash', 'to':'address', 'value':'amount', 'metadata.blockTimestamp':'tx_timestamp'}, inplace=True)
-    
-# df_transfers_out = _df_transfers_full[['hash', 'from', 'value', 'metadata.blockTimestamp']].copy()
-# # df_transfers_out['value'] = df_transfers_out['value'].apply(lambda x: -1.0* x)
-# df_transfers_out['value'] = df_transfers_out['value']*-1.0
-
-# df_transfers_out.rename(columns = {'hash': 'tx_hash', 'from':'address', 'value':'amount', 'metadata.blockTimestamp':'tx_timestamp'}, inplace=True)
-    
-# transfer_in_n_out=pd.concat([df_transfers_in, df_transfers_out], axis=0)
-# transfer_in_n_out['date'] = pd.to_datetime(transfer_in_n_out['tx_timestamp'])##.apply(lambda x:x.date()))
-
-# df_transfers = transfer_in_n_out
-
-
-
-# # df_transfers_full = load_transfers_csv()
-# # df_transfers = get_transformed_transfers(df_transfers_full)
-
-# print(df_transfers_full.info())
-# print(df_transfers_full.head())
-
-# # unique_addresses = get_all_unique_addresses(df_transfers)
-
-
-# print(unique_addresses)
-# # print(df_transfers_full.head())
-
-
-
-# df_all_wallets_all_days_n_changes = get_df_all_wallets_all_days_n_changes(get_df_all_wallets_all_days(df_transfers), df_transfers)
-
 #------------------------------------------------------------------------------#
 #--------------------Get Unique Wallets------------------------------------
 # unique_wallets = pd.DataFrame(_transformed_transfers['address'].unique())
@@ -227,9 +124,6 @@ wallet_balances.to_csv(f'{date.today()}_balances_by_day.csv')
 import boto3
 import os
 from dotenv import load_dotenv
-
-
-
 
 def upload_file(file_name, bucket, object_name=None):
     """Upload a file to an S3 bucket
