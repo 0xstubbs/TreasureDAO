@@ -20,9 +20,10 @@ from st_aggrid import AgGrid, GridOptionsBuilder
 
 import sys
 sys.path.append('./modules/')
-import nfts
+import nft_streamlit_page
 import magic_token
 import methods
+import trove_data
 
 from PIL import Image
 from urllib.request import urlopen
@@ -396,8 +397,8 @@ with tab1:
     print("#---------------------------------------------------------------#\n\n\n\n")
     total_array = np.array(daily_total_per_wallet['cumsum'])
     total_array_lag=np.concatenate(([0], total_array[:-1]))
-    daily_change = total_array-total_array_lag
-    daily_total_per_wallet['change'] = daily_change
+    # daily_change = total_array-total_array_lag
+    # daily_total_per_wallet['change'] = daily_change
     
     tab1_col1, tab1_col2 = st.columns((1,2))
     st.header('Current Wallet Balances')
@@ -795,7 +796,7 @@ with tab1:
     with activity_columns[0]:
         st.markdown('### Filter Wallets by Txns')
         st.markdown('This table filters the wallets by a minimum # of transactions.')
-        st.dataframe(df_interactions[['name', 'min_txns', 'num_wallets', 'perc']], width=1000)
+        st.dataframe(df_interactions[['name', 'min_txns', 'num_wallets', 'perc']], height=500, width=1000)
         
     with activity_columns[1]:
         df_recent['perc']=100*(df_recent.loc[:, 'num_wallets']/df_interactions.loc[0, 'num_wallets'])
@@ -803,7 +804,7 @@ with tab1:
         
         st.markdown('### Filter by Elapsed Time Since Interaction')
         st.markdown('This table filters based on the time since interacting with MAGIC tokens.')
-        st.dataframe(df_recent.sort_values('Date Interval', ascending=False), width = 500)
+        st.dataframe(df_recent.sort_values('Date Interval', ascending=False), height=500, width=1000)
         
         
     with activity_columns[2]:
@@ -811,7 +812,7 @@ with tab1:
         
         st.markdown("### Now let's filter by both # of Txns and Timeframe!")
         st.markdown("More importantly - How many wallets are are recent & active?")
-        st.dataframe(df_ir[['min_txns', 'timedelta', 'num_active']])
+        st.dataframe(df_ir[['min_txns', 'timedelta', 'num_active']],height=500, width=1000 )
         
         
     

@@ -16,6 +16,7 @@ Original file is located at
 """
 from datetime import date, datetime
 import time
+from types import NoneType
 import requests
 import pandas as pd
 import os 
@@ -27,7 +28,9 @@ ALCHEMY_API_KEY_TREASURE = os.getenv('ALCHEMY_API_KEY_TREASURE')
 
 url = "https://arb-mainnet.g.alchemy.com/v2/{ALCHEMY_API_KEY_TREASURE}"
 
-def get_response_wo_pagekey():
+
+
+def get_response_wo_pagekey(contract_address, ALCHEMY_API_KEY_TREASURE):
   url = f"https://arb-mainnet.g.alchemy.com/v2/{ALCHEMY_API_KEY_TREASURE}"
   payload = {
       "id": 1,
@@ -37,8 +40,8 @@ def get_response_wo_pagekey():
           {
               "fromBlock": "0x0",
               "toBlock": "latest",
-              "contractAddresses": ["0x539bdE0d7Dbd336b79148AA742883198BBF60342"],
-              "category": ["erc20"],
+              "contractAddresses": [f"{contract_address}"],
+              "category": ["erc20", "erc721", "erc1155"],
               "withMetadata": True,
               "excludeZeroValue": False,
               "maxCount": "0x3e8",
@@ -51,14 +54,15 @@ def get_response_wo_pagekey():
       "Content-Type": "application/json"
   }
 
-  response = requests.post(url, json=payload, headers=headers)
+  response = requests.post(url, json=payload, headers=headers).json()['result']
   # print(response.text)
   return response
 
 
-def get_response_w_pgkey(_page_key):
+def get_response_w_pgkey(ALCHEMY_API_KEY_TREASURE, contract_address, _page_key):
   url = f"https://arb-mainnet.g.alchemy.com/v2/{ALCHEMY_API_KEY_TREASURE}"
-
+  # print(_page_key)
+  # contract_address = "0x539bdE0d7Dbd336b79148AA742883198BBF60342"
   payload = {
       "id": 1,
       "jsonrpc": "2.0",
@@ -67,8 +71,8 @@ def get_response_w_pgkey(_page_key):
           {
               "fromBlock": "0x0",
               "toBlock": "latest",
-              "contractAddresses": ["0x539bdE0d7Dbd336b79148AA742883198BBF60342"],
-              "category": ["erc20"],
+              "contractAddresses": [f"{contract_address}"],
+              "category": ["erc20", "erc721", "erc1155"],
               "withMetadata": True,
               "excludeZeroValue": False,
               "maxCount": "0x3e8",
@@ -82,44 +86,60 @@ def get_response_w_pgkey(_page_key):
       "Content-Type": "application/json"
   }
 
-  response = requests.post(url, json=payload, headers=headers)
+  response = requests.post(url, json=payload, headers=headers).json()['result']
+  
+  # print(response)
+  # print(response.json())
+  # print(response.json()['result'])
   return response
+
+contract_address = "0x4de95c1e202102e22e801590c51d7b979f167fbb" ###magic
 concat_num = 0
+
 df_transfers = pd.DataFrame()
-response_0 = get_response_wo_pagekey().json()['result']
+response_0 = get_response_wo_pagekey(contract_address,ALCHEMY_API_KEY_TREASURE)
 # print(response_0)
-print(response_0.keys())
+print('print the keys...')
+# print(response_0.keys())
+print("\n******************************************************\nPrinting response_0['transfers']")
+# print(response_0['transfers'])
 page_key = response_0['pageKey']
 # print(page_key)
 df_transfers = pd.json_normalize(response_0['transfers'])
+
 while page_key:
-  response=get_response_w_pgkey(page_key)
+  response=get_response_w_pgkey(ALCHEMY_API_KEY_TREASURE, contract_address, page_key)
   if 'error' in response.json(): 
     try:
-      response=get_response_w_pgkey(page_key)
+      response=get_response_w_pgkey(ALCHEMY_API_KEY_TREASURE, contract_address, page_key)
     except:
       print(response.json()['error']['code'])
   try:
     page_key = response.json()['result']['pageKey']
     # response=get_transfers_w_pgkey(page_key)
-    result = response.json()['result']['transfers']
+    
   except:
-    page_key = False
+    False
     # print(response.text)
+    # result = NoneType
     print("page key not found")
   
+  try:
+    result = response.json()['result']['transfers']
+    # print(result)
+    df_new = pd.json_normalize(result)
 
-  df_new = pd.json_normalize(result)
-
-  df_transfers=pd.concat([df_transfers, df_new], axis=0)
+    df_transfers=pd.concat([df_transfers, df_new], axis=0)
+  except:
+    break
   concat_num = concat_num + 1
   if concat_num % 50 == 0:
     print(f"Iteration Number: {concat_num}")
 
 
 
-df_transfers=df_transfers.drop(['uniqueId', 'erc721TokenId', 'erc1155Metadata', 'tokenId', 'asset', 'category'], axis=1)
-df_transfers.to_csv(f'{date.today()}_df_transfers.csv')
+df_transfers=df_transfers.drop(['uniqueId', 'erc1155Metadata'], axis=1)
+df_transfers.to_csv(f'{date.today()}_df_transfers_{contract_address}.csv')
 df_transfers.to_csv('df_transfers.csv')
 
 stop_time = time.time()

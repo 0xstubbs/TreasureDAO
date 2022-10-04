@@ -4,14 +4,15 @@ import altair as alt
 from datetime import date
 import numpy as np
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import boto3
 
+import sys
+sys.path.append('./modules/')
+# import thegraph
 
-load_dotenv()
 
-
-
+# load_dotenv()
 
 try:
     AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
@@ -48,8 +49,6 @@ col1 = st.sidebar
 col2, col3 = st.columns((2,1))    
 
 tab1, tab2, tab3 = st.tabs(['Magic Token', 'Legion', 'Trove'])
-
-
 
 expander_test = st.expander
 #---------------------------------------------#
@@ -99,12 +98,15 @@ minted_over_time['cumsum'] = minted_over_time['cumsum'].apply(lambda x: -1 * x)
 with tab1:
     st.header('$MAGIC Token')
     tab1_col1, tab1_col2 = st.columns((1,2))
-    tab1_col1_2, tab1_col2_2, tab1_col3_2 = st.columns((1,1,1))
+    st.header('Current Wallet Balances')
+    tab1_col1_2, tab1_col2_2 = st.columns((1,1))
 
 
 with tab1_col1:
     total_magic_supply = abs(minted_over_time['cumsum'].iloc[-1])
     st.metric('Total MAGIC Supply', "{:,.0f}".format(total_magic_supply))
+
+
 
     # st.line_chart(minted_over_time, x='date', y=['cumsum', 'amount'])
     
@@ -117,8 +119,8 @@ with tab1_col2:
     )
     st.altair_chart(chart, use_container_width=True)
     
-with tab1_col2_2:
-    st.header('Current Wallet Balances')
+with tab1_col1_2:
+    
     balances = load_balances_by_day()
     balances.drop(balances.columns[0], axis=1, inplace=True)
     balances['date'] = pd.to_datetime(balances['date']).dt.date
@@ -133,9 +135,7 @@ with tab1_col2_2:
     st.write('Wallet Balances <not staking contracts>')
     st.dataframe(balances_today_wo_contracts, width=1400, height=600)
 
-    
-   
-with tab1_col3_2:
+with tab1_col2_2:
     excluded_address_expander = st.expander('Excluded Addresses')
     st.write('Wallet Balances <Staking Contract, LP, etc>')
     balances_excluded = balances_excluded.merge(df_excluded_addresses, how='left', left_on='wallet_address', right_on='Wallet Address')
@@ -210,3 +210,10 @@ with col2_nft_stats:
     
 with tab3:
     st.header('Trove Marketplace')
+    collections = thegraph.get_collections()
+    
+    option = st.selectbox(
+     'Select Collection...',
+     collections)
+
+    st.write('You selected:', option)

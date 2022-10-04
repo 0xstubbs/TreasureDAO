@@ -4,40 +4,40 @@ from datetime import date
 
 #------------------------------------------------------------------------------#
 #--------------------Get Unique Wallets------------------------------------
-# unique_wallets = pd.DataFrame(_transformed_transfers['address'].unique())
-print('Getting all unique addresses...')
-wallets = df_transfers['address'].drop_duplicates()
-wallets['key']=1
+# # unique_wallets = pd.DataFrame(_transformed_transfers['address'].unique())
+# print('Getting all unique addresses...')
+# wallets = df_transfers['address'].drop_duplicates()
+# wallets['key']=1
 
-##-------------
-#-----Create a date range dataframe
+# ##-------------
+# #-----Create a date range dataframe
 
-start_day = pd.to_datetime(df_transfers['tx_timestamp'].dt.date).min()
-end_day = pd.to_datetime(df_transfers['tx_timestamp'].dt.date).max()
-date_range = pd.DataFrame(pd.date_range(start_day, end_day, inclusive="both"))
-date_range['key']=1
+# start_day = pd.to_datetime(df_transfers['tx_timestamp'].dt.date).min()
+# end_day = pd.to_datetime(df_transfers['tx_timestamp'].dt.date).max()
+# date_range = pd.DataFrame(pd.date_range(start_day, end_day, inclusive="both"))
+# date_range['key']=1
 
-wallets_all_days=pd.merge(unique_wallets, date_range, how='outer', on='key').drop(columns=['key']).rename(columns={'0_x':'wallet_address', '0_y':'date'})
-
-
+# wallets_all_days=pd.merge(unique_wallets, date_range, how='outer', on='key').drop(columns=['key']).rename(columns={'0_x':'wallet_address', '0_y':'date'})
 
 
-print(df_all_wallets_all_days_n_changes.head())
-print(df_all_wallets_all_days_n_changes.info())
 
-unique_holders_per_day = get_unique_holders_per_day(df_all_wallets_all_days_n_changes)
-print(unique_holders_per_day.head())
-print(unique_holders_per_day.info())
 
-wallet_balance_n_changes = get_wallet_bal_net_change(df_all_wallets_all_days_n_changes)
-print(wallet_balance_n_changes.head())
-print(wallet_balance_n_changes.info())
+# print(df_all_wallets_all_days_n_changes.head())
+# print(df_all_wallets_all_days_n_changes.info())
 
-df_mints_n_burns = mints_n_burns(df_transfers, 'df')
-total_supply = mints_n_burns(df_transfers, 'total_supply')
+# unique_holders_per_day = get_unique_holders_per_day(df_all_wallets_all_days_n_changes)
+# print(unique_holders_per_day.head())
+# print(unique_holders_per_day.info())
 
-df_mints_n_burns.to_csv(f'{date.today()}_magic_supply_over_time.csv')
-wallet_balance_n_changes.to_csv(f'{date.today()}_wallet_balances.csv')
+# wallet_balance_n_changes = get_wallet_bal_net_change(df_all_wallets_all_days_n_changes)
+# print(wallet_balance_n_changes.head())
+# print(wallet_balance_n_changes.info())
+
+# df_mints_n_burns = mints_n_burns(df_transfers, 'df')
+# total_supply = mints_n_burns(df_transfers, 'total_supply')
+
+# df_mints_n_burns.to_csv(f'{date.today()}_magic_supply_over_time.csv')
+# wallet_balance_n_changes.to_csv(f'{date.today()}_wallet_balances.csv')
 
 
 #------------------------------------------------------------------------------------------------------------#
@@ -69,7 +69,7 @@ df_transfers_in.rename(columns = {'hash': 'tx_hash', 'to':'address', 'value':'am
 transfers_all=pd.concat([df_transfers_in, df_transfers_out], axis=0)
 
 #Create a 'date' column we will not be looking at individual txns. 
-transfers_all['date'] = pd.to_datetime(transfer_in_n_out['tx_timestamp']).dt.date
+transfers_all['date'] = pd.to_datetime(transfers_all['tx_timestamp']).dt.date
 transfers_all = transfers_all[['date', 'tx_timestamp', 'address', 'amount']].reset_index()
 
 #------------------------------------------------------------------------------------------------------------#
